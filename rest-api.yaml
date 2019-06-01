@@ -1,0 +1,263 @@
+openapi: 3.0.0
+info:
+  version: v1
+  title: Rest Api myBudget
+
+security:
+  - api-auth-token: []
+
+
+
+paths:
+  /session:
+    post:
+      operationId: sessionPost
+      tags:
+        - Session
+      description: >
+        Creates a new API session obtaining session token for subsequent API
+        access
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: 
+                    The username
+                  example:
+                    admin
+                  type: string
+                password:
+                  type: string
+                  example:
+                    admin123                  
+              required:
+                - username
+                - password
+        required: true
+      responses:
+        '201':
+          description: The session object
+          headers:
+            x-auth-token:
+              description: The session token
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: |
+            Invalid credentials or bad parameters.
+            Error code is 10. Sub codes are:
+            * 1 - Invalid username or password
+            * 3 - User disabled
+            * 4 - Password expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+
+  /session/pwdchange:
+    post:
+      operationId: sessionPwdchangePost
+      tags:
+        - Session
+      description: Change current user password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example:
+                    admin123                  
+                newPassword:
+                  type: string
+                  example:
+                    admin1234                  
+              required:
+                - oldPassword
+                - newPassword
+        required: true
+      responses:
+        '204':
+          description: Password was successfully updated
+        '400':
+          description: |
+            Invalid or bad parameters.
+            Error code is 11. Sub codes are:
+            * 1 - Invalid old password
+            * 2 - New Password not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid session
+
+  
+servers:
+  - url: 'http://api.mybudget.com/v1'
+
+components:
+  parameters:
+    pageParam:
+      description: The page number (zero-based index)
+      name: page
+      in: query
+      required: true
+      schema:
+        type: integer
+    sizeParam:
+      name: size
+      in: query
+      description: The number of records per page
+      required: true
+      schema:
+        type: integer
+    sortParam:
+      name: sort
+      in: query
+      required: false
+      description: 'The fields to sort (example sort=field1,desc&sort=field2,asc)'
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+
+  requestBodies:
+
+    WorkspaceDetails:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Session'
+      required: true
+
+  securitySchemes:
+    api-auth-token:
+      type: apiKey
+      description: >-
+        The session security token obtained on login via the /session API by
+        response header x-auth-token property
+      in: header
+      name: x-auth-token
+
+
+  schemas:
+
+    Page:
+      type: object
+      properties:
+        first:
+          type: boolean
+          example: true            
+        last:
+          type: boolean
+          example: false
+        size:
+          type: integer
+          example: 30          
+        totalElements:
+          type: integer
+          example: 300          
+        totalPages:
+          type: integer
+          example: 10          
+        number:
+          type: integer
+          example: 10          
+      required:
+        - first
+        - last
+        - size
+        - totalElements
+        - totalPages
+        - number
+
+    ErrorInternal:
+      description: Available only in the debug environment
+      type: object
+      properties:
+        exception:
+          type: string
+          example: NotFoundException          
+          readOnly: true
+        stack:
+          type: string
+          example: it.italiancoders.NotfoundException line 200          
+          readOnly: true
+      required:
+        - exception
+
+    ErrorData:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 10          
+          readOnly: true
+        subcode:
+          type: integer
+          example: 0          
+          readOnly: true
+        userTitle:
+          description: The title for the popup error message
+          type: string
+          example: Updating Failed          
+          readOnly: true
+        userMessage:
+          example: Unable to Perform the action requested        
+          description: >-
+            The error message to show (depending on the locale used when
+            creating the session)
+          type: string
+          readOnly: true
+        internal:
+          $ref: '#/components/schemas/ErrorInternal'
+          readOnly: true
+      required:
+        - code
+        - subcode
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorData'
+          readOnly: true
+      required:
+        - error
+
+    Session:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin          
+        locale:
+          type: string
+          example: it
+        expiresIn:
+          description: Access token expiry timeout in seconds
+          type: integer
+          example: 600
+        environment:
+          description: >-
+            Environment name (could be used for external app integration or to
+            be shown in UI)
+          type: string
+          example: teq        
+      required:
+        - username
+        - locale
+        - expiresIn
