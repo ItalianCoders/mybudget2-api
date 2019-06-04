@@ -1,0 +1,9 @@
+{
+  "modelPackage" : "iit.list.italiancoders.mybudgetrest.model.dto",
+  "hideGenerationTimestamp": true,
+  "serializableModel": true,
+  "booleanGetterPrefix": "is",
+  "useBeanValidation": false,
+  "useSwaggerAnnotations": false,
+  "dateLibrary":"java8"
+}

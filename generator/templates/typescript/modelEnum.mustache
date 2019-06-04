@@ -1,0 +1,62 @@
+function CTM<T>(x: T) {
+    return x;
+}
+
+{{#vendorExtensions.x-list-enum}} /* -- vendorExtensions.x-list-enum -- */
+
+export enum _{{classname}} {
+{{#allowableValues}}
+{{#vendorExtensions.x-list-enum.values}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+{{/vendorExtensions.x-list-enum.values}}
+{{/allowableValues}}
+}
+
+export type {{classname}} = {{#allowableValues}}{{#vendorExtensions.x-list-enum.values}}_{{classname}}.{{name}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-list-enum.values}}{{/allowableValues}};
+
+export const {{classname}} = {
+{{#allowableValues}}
+{{#vendorExtensions.x-list-enum.values}}
+    {{name}}: _{{classname}}.{{name}} as {{classname}}{{^-last}},{{/-last}}
+{{/vendorExtensions.x-list-enum.values}}
+{{/allowableValues}}
+};
+
+export const {{enumName}}{{^enumName}}{{classname}}{{/enumName}}ReverseMap = {
+{{#allowableValues}}
+
+{{#vendorExtensions.x-list-enum.values}}
+  [{{{value}}} as {{{value}}}]: { id: {{classname}}.{{{name}}}, translationLabel: CTM('enum.{{{classname}}}.{{{name}}}') },
+{{/vendorExtensions.x-list-enum.values}}
+{{/allowableValues}}
+};
+
+{{/vendorExtensions.x-list-enum}}{{^vendorExtensions.x-list-enum}} /* -- enum -- */
+
+export enum _{{classname}} {
+{{#allowableValues}}
+{{#enumVars}}
+    {{{name}}} = {{{value}}}{{^-last}},{{/-last}}
+{{/enumVars}}
+{{/allowableValues}}
+}
+
+export type {{classname}} = {{#allowableValues}}{{#enumVars}}_{{classname}}.{{name}}{{^-last}} | {{/-last}}{{/enumVars}}{{/allowableValues}};
+
+export const {{classname}} = {
+{{#allowableValues}}
+{{#enumVars}}
+    {{name}}: _{{classname}}.{{name}} as {{classname}}{{^-last}},{{/-last}}
+{{/enumVars}}
+{{/allowableValues}}
+};
+
+export const {{enumName}}{{^enumName}}{{classname}}{{/enumName}}ReverseMap = {
+{{#allowableValues}}
+{{#enumVars}}
+  [{{{value}}} as {{{value}}}]: { id: {{classname}}.{{{name}}}, translationLabel: CTM('enum.{{{classname}}}.{{{name}}}') },
+{{/enumVars}}
+{{/allowableValues}}
+};
+
+{{/vendorExtensions.x-list-enum}}

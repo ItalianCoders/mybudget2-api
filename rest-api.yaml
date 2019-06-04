@@ -15,36 +15,40 @@ paths:
       tags:
         - Session
       description: >
-        Creates a new API session obtaining session token for subsequent API
-        access
+        Obtain AccessToken, RefreshToken and the user session
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  description: 
-                    The username
-                  example:
-                    admin
-                  type: string
-                password:
-                  type: string
-                  example:
-                    admin123                  
-              required:
-                - username
-                - password
+        $ref: '#/components/requestBodies/LoginRequest'
         required: true
       responses:
         '201':
           description: The session object
-          headers:
-            x-auth-token:
-              description: The session token
+          content:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: |
+            Invalid credentials
+        '498':
+          description: |
+            Access Token Expire, try to obtain a new token with refresh token 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session/refresh:
+    post:
+      operationId: sessionRefreshPost
+      tags:
+        - Session
+      description: >
+                Obtain a new AccessToken  using RefreshToken
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequest'
+        required: true
+      responses:
+        '201':
+          description: The session object
           content:
             application/json:
               schema:
@@ -60,7 +64,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
 
 
   /session/pwdchange:
@@ -136,22 +139,28 @@ components:
 
   requestBodies:
 
-    WorkspaceDetails:
+    LoginRequest:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Session'
+            $ref: '#/components/schemas/LoginRequest'
       required: true
 
   securitySchemes:
     api-auth-token:
       type: apiKey
       description: >-
-        The session security token obtained on login via the /session API by
-        response header x-auth-token property
+        The session access token obtained on login via the /session API by
+        response header x-access-token property
       in: header
-      name: x-auth-token
-
+      name: x-access-token
+    api-refresh-token:
+      type: apiKey
+      description: >-
+        The session refresh token obtained on login via the /session API by
+        response header x-arefresh-token property. Using this token to obtain a new access token
+      in: header
+      name: x-access-token
 
   schemas:
 
@@ -202,14 +211,6 @@ components:
     ErrorData:
       type: object
       properties:
-        code:
-          type: integer
-          example: 10          
-          readOnly: true
-        subcode:
-          type: integer
-          example: 0          
-          readOnly: true
         userTitle:
           description: The title for the popup error message
           type: string
@@ -238,26 +239,74 @@ components:
       required:
         - error
 
-    Session:
+    UserRole:
+      type: string
+      enum:
+        - VIEW_BUDGET
+        - DELETE_EXPENSE
+        - ADD_EXPENSE
+        
+    User:
       type: object
       properties:
         username:
           type: string
-          example: admin          
+          example: admin
+        email:
+          type: string
+          example: admin@gmail.com          
+        roles:
+          description: User Roles
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRole'          
+          example: [VIEW_BUDGET]
+      required:
+        - username
+        - roles
+        - email
+               
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: admin
         locale:
           type: string
           example: it
-        expiresIn:
-          description: Access token expiry timeout in seconds
-          type: integer
-          example: 600
+      required:
+        - username
+        - password
+
+    Session:
+      type: object
+      properties:
+        userInfo:
+          $ref: '#/components/schemas/User'
+        locale:
+          type: string
+          example: it
         environment:
           description: >-
             Environment name (could be used for external app integration or to
             be shown in UI)
           type: string
-          example: teq        
+          example: teq
+        accessToken:
+          type: string
+          example: xxxx
+        refreshToken:
+          type: string
+          example: yyyyyyyy          
       required:
         - username
         - locale
         - expiresIn
+        - accessToken
+        - refreshToken
+        
+        
