@@ -456,7 +456,7 @@ components:
           $ref: '#/components/schemas/Category'          
         executedAt:
           type: string
-          format: date-teime
+          format: date-time
       required:
         - amount
         - category
