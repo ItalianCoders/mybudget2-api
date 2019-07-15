@@ -193,7 +193,150 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse' 
         '404':
-          description: Category Not Found                                
+          description: Category Not Found
+
+  /movements:
+    post:
+      operationId: movementsPost
+      tags:
+        - Movement
+      description: >
+        Create a new movement
+      requestBody:
+        $ref: '#/components/requestBodies/Movement'
+        required: true
+      responses:
+        '201':
+          description: The Category object created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movement'
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired          
+        '400':
+          description: |
+            I
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: movementsGet
+      tags:
+        - Movement
+      description: Returns paged list of Movements
+      parameters:
+        - name: monthtYear
+          in: query
+          schema:
+            type: string
+            description: MM-YEAR. Example 03-2019            
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/sizeParam'
+        - $ref: '#/components/parameters/sortParam'
+      responses:
+        '200':
+          description: The paged Movement list object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovementListPage'
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired
+          
+  /movements/{id}:
+    get:
+      operationId: movementsGetById
+      tags:
+        - Movement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      description: >
+        Obtain the movement
+      responses:
+        '200':
+          description: Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movement'
+        '404':
+          description: Movement Not Found       
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired 
+          
+    put:
+      operationId: movementPut
+      tags:
+        - Movement
+      description: >
+        Update an existing movement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64     
+      requestBody:
+        $ref: '#/components/requestBodies/Movement'
+        required: true
+      responses:
+        '204':
+          description: Movement successfully updated
+        '401':
+          description: Invalid session
+        '400':
+          description: Unable to update movement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        '404':
+          description: Category Not Found             
+        '498':
+          description: Access token expired           
+    delete:
+      operationId: movementDelete
+      tags:
+        - Movement
+      description: >
+        Delete an existing movement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Movement successfully deleted
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired           
+        '400':
+          description: Unable to update movement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        '404':
+          description: Category Not Found          
+          
 servers:
   - url: 'http://api.mybudget.com/v1'
 
@@ -238,6 +381,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Category'        
+      required: true
+
+    Movement:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Movement'        
       required: true
       
   securitySchemes:
@@ -448,6 +598,11 @@ components:
     Movement:
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
+          example: 1      
+          readOnly: true      
         amount:
           type: number
           format: double
@@ -460,4 +615,19 @@ components:
       required:
         - amount
         - category
+        
+    MovementListPage:
+      description: Paged Movement list
+      x-list-javaCustomization:
+        avoidBuilder: true
+      allOf:
+        - $ref: '#/components/schemas/Page'
+        - type: object
+          properties:
+            contents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Movement'
+          required:
+            - contents        
         
