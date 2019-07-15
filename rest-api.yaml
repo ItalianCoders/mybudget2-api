@@ -29,23 +29,20 @@ paths:
         '400':
           description: |
             Invalid credentials
-        '498':
-          description: |
-            Access Token Expire, try to obtain a new token with refresh token 
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /session/refresh:
+
+  /session/refresh/{refreshtoken}:
     post:
       operationId: sessionRefreshPost
       tags:
         - Session
       description: >
-                Obtain a new AccessToken  using RefreshToken
-      requestBody:
-        $ref: '#/components/requestBodies/LoginRequest'
-        required: true
+                Obtain a new AccessToken and user session using RefreshToken
+      parameters:
+        - name: refreshtoken
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '201':
           description: The session object
@@ -55,58 +52,148 @@ paths:
                 $ref: '#/components/schemas/Session'
         '400':
           description: |
-            Invalid credentials or bad parameters.
-            Error code is 10. Sub codes are:
-            * 1 - Invalid username or password
-            * 3 - User disabled
-            * 4 - Password expired
+            Invalid Refresh Token.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
 
-  /session/pwdchange:
+  /categories:
     post:
-      operationId: sessionPwdchangePost
+      operationId: categoryPost
       tags:
-        - Session
-      description: Change current user password
+        - Category
+      description: >
+        Create a new category
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                oldPassword:
-                  type: string
-                  example:
-                    admin123                  
-                newPassword:
-                  type: string
-                  example:
-                    admin1234                  
-              required:
-                - oldPassword
-                - newPassword
+        $ref: '#/components/requestBodies/Category'
+        required: true
+      responses:
+        '201':
+          description: The Category object created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired          
+        '400':
+          description: |
+            I
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'          
+    get:
+      operationId: categoryGet
+      tags:
+        - Category
+      description: >
+        Obtain the categories to use to perform new movement
+      responses:
+        '200':
+          description: The Category object created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired           
+                
+  /categories/{id}:
+    get:
+      operationId: categoryGetById
+      tags:
+        - Category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      description: >
+        Obtain the categoriy to use to perform new movement
+      responses:
+        '200':
+          description: Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category Not Found       
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired 
+          
+    put:
+      operationId: categoryPut
+      tags:
+        - Category
+      description: >
+        Update an existing category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64     
+      requestBody:
+        $ref: '#/components/requestBodies/Category'
         required: true
       responses:
         '204':
-          description: Password was successfully updated
+          description: Category successfully updated
+        '401':
+          description: Invalid session
         '400':
-          description: |
-            Invalid or bad parameters.
-            Error code is 11. Sub codes are:
-            * 1 - Invalid old password
-            * 2 - New Password not accepted
+          description: Unable to update category
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse' 
+        '404':
+          description: Category Not Found             
+        '498':
+          description: Access token expired           
+    delete:
+      operationId: categoryDelete
+      tags:
+        - Category
+      description: >
+        Delete an existing category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Category successfully deleted
         '401':
           description: Invalid session
-
-  
+        '498':
+          description: Access token expired           
+        '400':
+          description: Unable to update category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        '404':
+          description: Category Not Found                                
 servers:
   - url: 'http://api.mybudget.com/v1'
 
@@ -146,6 +233,13 @@ components:
             $ref: '#/components/schemas/LoginRequest'
       required: true
 
+    Category:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Category'        
+      required: true
+      
   securitySchemes:
     api-auth-token:
       type: apiKey
@@ -158,9 +252,9 @@ components:
       type: apiKey
       description: >-
         The session refresh token obtained on login via the /session API by
-        response header x-arefresh-token property. Using this token to obtain a new access token
+        response header x-refresh-token property. Using this token to obtain a new access token
       in: header
-      name: x-access-token
+      name: x-refresh-token
 
   schemas:
 
@@ -226,10 +320,28 @@ components:
         internal:
           $ref: '#/components/schemas/ErrorInternal'
           readOnly: true
+        constraintErrors:
+          description: if it is valued contains a list of constraints not respected in the current post/put request
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstraintError'         
       required:
-        - code
-        - subcode
+        - userTitle
+        - userMessage
 
+    ConstraintError:
+      type: object
+      properties:
+        fieldName:
+          description: the field name
+          type: string
+          example: Name         
+        constraintsNotRespected:
+          description: a list of constraints Not Respected
+          type: array
+          items:
+            type: string   
+          
     ErrorResponse:
       type: object
       properties:
@@ -305,8 +417,47 @@ components:
       required:
         - username
         - locale
-        - expiresIn
         - accessToken
         - refreshToken
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1      
+          readOnly: true
+        name:
+          type: string
+          example: CIBO
+          minLength: 3
+          maxLength: 20          
+        description:
+          type: string
+          maxLength: 150 
+          example: CIBO
+        isReadOnly:
+          type: boolean
+          readOnly: true
+          example: CIBO           
+      required:
+        - name
+
         
+    Movement:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 2
+        category:
+          $ref: '#/components/schemas/Category'          
+        executedAt:
+          type: string
+          format: date-teime
+      required:
+        - amount
+        - category
         

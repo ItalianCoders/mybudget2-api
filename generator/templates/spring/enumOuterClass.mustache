@@ -13,21 +13,13 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
   {{/-last}}{{#-last}};{{/-last}}{{/enumVars}}{{/allowableValues}}
   {{/gson}}
   {{^gson}}
-  {{^vendorExtensions.x-list-enum}}
   {{#allowableValues}}{{#enumVars}}
   {{{name}}}({{{value}}}){{^-last}},
   {{/-last}}{{#-last}};{{/-last}}{{/enumVars}}{{/allowableValues}}
-  {{/vendorExtensions.x-list-enum}}
-  {{#vendorExtensions.x-list-enum}}
-  {{#allowableValues}}{{#vendorExtensions.x-list-enum.values}}
-  {{{name}}}({{{value}}}){{^-last}},
-  {{/-last}}{{#-last}};{{/-last}}{{/vendorExtensions.x-list-enum.values}}{{/allowableValues}}
-  {{/vendorExtensions.x-list-enum}}
-
   {{/gson}}
 
   private {{{dataType}}} value;
-
+  
   {{#jackson}}
   @JsonValue
   {{/jackson}}
@@ -45,12 +37,12 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
   }
 
   @JsonCreator
-  public static {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} fromValue(String text) {
+  public static {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} fromValue({{{dataType}}} value) {
     for ({{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} b : {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}.values()) {
-      if (String.valueOf(b.value).equals(text)) {
+      if (b.value.equals(value)) {
         return b;
       }
     }
-    {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + text + "'");{{/useNullForUnknownEnumValue}}
+    {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/useNullForUnknownEnumValue}}
   }
 }

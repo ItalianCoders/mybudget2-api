@@ -3,7 +3,7 @@
   "hideGenerationTimestamp": true,
   "serializableModel": true,
   "booleanGetterPrefix": "is",
-  "useBeanValidation": false,
+  "useBeanValidation": true,
   "useSwaggerAnnotations": false,
   "dateLibrary":"java8"
 }
