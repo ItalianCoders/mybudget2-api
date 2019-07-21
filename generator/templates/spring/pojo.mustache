@@ -88,7 +88,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}}{{^parent}}
  {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
   {{/vendorExtensions.extraAnnotation}}
-{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}  public {{>nullableDataType}} {{getter}}() {
+{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}
+  public {{>nullableDataType}} {{getter}}() {
     return {{name}};
   }
 

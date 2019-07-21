@@ -74,6 +74,22 @@
                             <configurationFile>${project.basedir}/config.json</configurationFile>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>kotlina</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <inputSpec>../rest-api.yaml</inputSpec>
+                            <generatorName>kotlin</generatorName>
+                            <output>${project.basedir}/output/kotlin</output>
+                            <modelPackage>it.italiancoders.mybudgetrest.model.dto</modelPackage>
+                            <generateApis>false</generateApis>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <configurationFile>${project.basedir}/config.json</configurationFile>
+                        </configuration>
+                    </execution>					
                 </executions>
             </plugin>
         </plugins>

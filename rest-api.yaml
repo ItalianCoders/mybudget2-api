@@ -229,11 +229,20 @@ paths:
         - Movement
       description: Returns paged list of Movements
       parameters:
-        - name: monthtYear
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: string 
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string 
+        - name: day
           in: query
           schema:
-            type: string
-            description: MM-YEAR. Example 03-2019            
+            type: string             
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/sizeParam'
         - $ref: '#/components/parameters/sortParam'
@@ -335,7 +344,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse' 
         '404':
-          description: Category Not Found          
+          description: Category Not Found
+          
+  /expense-summary:          
+    get:
+      operationId: expenseSummaryGet
+      tags:
+        - Movement
+      description: Return the expense summary
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: string 
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string 
+        - name: day
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The paged Movement list object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSummary'
+        '401':
+          description: Invalid session
+        '498':
+          description: Access token expired          
           
 servers:
   - url: 'http://api.mybudget.com/v1'
@@ -490,7 +532,7 @@ components:
           description: a list of constraints Not Respected
           type: array
           items:
-            type: string   
+            type: string
           
     ErrorResponse:
       type: object
@@ -615,7 +657,36 @@ components:
       required:
         - amount
         - category
+
+    CategoryMovementOverview:
+      type: object
+      properties:
+        totalAmount:
+          type: number
+          format: double
+          example: 2
+        category:
+          $ref: '#/components/schemas/Category'
+      required:
+        - amount
+        - category
         
+    ExpenseSummary:
+      type: object
+      properties:
+        totalAmount:
+          type: number
+          format: double
+          example: 2
+        categoryOverview:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryMovementOverview'
+        lastMovements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movement'
+            
     MovementListPage:
       description: Paged Movement list
       x-list-javaCustomization:
