@@ -233,16 +233,21 @@ paths:
           in: query
           required: true
           schema:
-            type: string 
+            type: integer 
         - name: month
           in: query
           required: true
           schema:
-            type: string 
+            type: integer 
         - name: day
           in: query
           schema:
-            type: string             
+            type: integer     
+        - name: category
+          in: query
+          schema:
+            type: integer
+            format: int64
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/sizeParam'
         - $ref: '#/components/parameters/sortParam'
@@ -357,16 +362,16 @@ paths:
           in: query
           required: true
           schema:
-            type: string 
+            type: integer 
         - name: month
           in: query
           required: true
           schema:
-            type: string 
+            type: integer 
         - name: day
           in: query
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: The paged Movement list object
