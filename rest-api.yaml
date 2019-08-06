@@ -688,9 +688,8 @@ components:
           items:
             $ref: '#/components/schemas/CategoryMovementOverview'
         lastMovements:
-          type: array
-          items:
-            $ref: '#/components/schemas/Movement'
+          $ref: '#/components/schemas/MovementListPage'
+
             
     MovementListPage:
       description: Paged Movement list
