@@ -29,6 +29,9 @@ paths:
         '400':
           description: |
             Invalid credentials
+        '403':
+          description: |
+            User not Active            
 
   /session/refresh/{refreshtoken}:
     post:
@@ -57,7 +60,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+                
+  /registration-user:
+    post:
+      operationId: registrationUserPost
+      tags:
+        - UserRegistrationInfo
+      description: >
+                Registrate anew User
+      requestBody:
+        $ref: '#/components/requestBodies/UserRegistrationInfo'
+        required: true
+      responses:
+        '204':
+          description: User Created and sent the confirm registration mail
+        '400':
+          description: |
+            I
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'       
 
+  /resend-confirm-registration-mail:
+    post:
+      operationId: resendRegistrationConfirmUserPost
+      tags:
+        - UserRegistrationInfo
+      description: >
+                Resend confirm registration mail
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User Created and sent the confirm registration mail
+        '400':
+          description: |
+            I
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'       
+                
+  /confirm-registration:
+    get:
+      operationId: registrationUserGet
+      tags:
+        - UserRegistrationInfo
+      description: >
+                Confirm Registration
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User Created and sent the confirm registration mail
+        '400':
+          description: |
+            I
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'       
 
   /categories:
     post:
@@ -242,7 +313,11 @@ paths:
         - name: day
           in: query
           schema:
-            type: integer     
+            type: integer    
+        - name: week
+          in: query
+          schema:
+            type: integer                 
         - name: category
           in: query
           schema:
@@ -372,6 +447,10 @@ paths:
           in: query
           schema:
             type: integer
+        - name: week
+          in: query
+          schema:
+            type: integer                 
       responses:
         '200':
           description: The paged Movement list object
@@ -436,6 +515,12 @@ components:
           schema:
             $ref: '#/components/schemas/Movement'        
       required: true
+    UserRegistrationInfo:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserRegistrationInfo'        
+      required: true      
       
   securitySchemes:
     api-auth-token:
@@ -574,7 +659,32 @@ components:
         - username
         - roles
         - email
-               
+        
+    UserRegistrationInfo:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        firstname:
+          type: string
+          example: admin
+        lastname:
+          type: string
+          example: admin 
+        password:
+          type: string
+          example: admin
+          minLength: 5
+          maxLength: 30          
+        email:
+          type: string
+          example: admin@gmail.com   
+      required:
+        - username
+        - password
+        - email
+        
     LoginRequest:
       type: object
       properties:
