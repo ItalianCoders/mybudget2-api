@@ -769,6 +769,10 @@ components:
         executedAt:
           type: string
           format: date-time
+        note:
+          type: string
+          example: xxx
+          maxLength: 200            
       required:
         - amount
         - category
