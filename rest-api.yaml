@@ -82,7 +82,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'       
 
-  /resend-confirm-registration-mail/{username}:
+  /resend-confirm-registration-mail:
     post:
       operationId: resendRegistrationConfirmUserPost
       tags:
@@ -91,7 +91,7 @@ paths:
                 Resend confirm registration mail
       parameters:
         - name: username
-          in: path
+          in: query
           required: true
           schema:
             type: string
